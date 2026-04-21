@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unidad Educativa Atahualpa — Ambato</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            royal: { 50: '#eff4ff', 100: '#dce8ff', 200: '#b8d0ff', 300: '#7eabff', 400: '#3d7fff', 500: '#1a5cd4', 600: '#1247b8', 700: '#0d3490', 800: '#0a286e', 900: '#0c2461', 950: '#071440' },
+            silver: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8' },
+            offwhite: '#f5f8ff',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            bebas: ['Bebas Neue', 'cursive'],
+            body: ['DM Sans', 'sans-serif'],
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #f5f8ff; color: #0c2461; }
+    /* ───── HERO ───── */
+    .hero-wrap { position: relative; height: 100vh; min-height: 600px; overflow: hidden; }
+    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(7,20,64,.90) 0%, rgba(12,36,97,.60) 55%, rgba(61,127,255,.18) 100%);
+    }
+    .hero-content { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 3rem 5%; }
+    /* diagonal accent */
+    .diagonal-accent {
+      position: absolute; bottom: -2px; left: 0; right: 0; height: 80px;
+      background: #f5f8ff;
+      clip-path: polygon(0 80px, 100% 0, 100% 80px);
+    }
+    /* ───── NAV ───── */
+    .nav-link { position: relative; font-weight: 500; letter-spacing: .04em; font-size: .85rem; text-transform: uppercase; color: #0c2461; transition: color .3s; }
+    .nav-link::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:2px; background:#1247b8; transition: width .3s; }
+    .nav-link:hover { color: #1247b8; }
+    .nav-link:hover::after { width: 100%; }
+    /* ───── SECTION LABEL ───── */
+    .section-label { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; letter-spacing: .25em; color: #1247b8; }
+    .section-heading { font-family: 'Playfair Display', serif; }
+    /* ───── STAT CARD ───── */
+    .stat-card { border-left: 3px solid #1a5cd4; }
+    /* ───── SERVICE CARD ───── */
+    .service-card { transition: transform .35s, box-shadow .35s; }
+    .service-card:hover { transform: translateY(-8px); box-shadow: 0 24px 48px rgba(12,36,97,.14); }
+    .service-icon { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1247b8, #1a5cd4); border-radius: 14px; }
+    /* ───── TIMELINE ───── */
+    .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #1a5cd4, transparent); }
+    .timeline-dot { width: 12px; height: 12px; background: #1a5cd4; border-radius: 50%; border: 2px solid #f5f8ff; box-shadow: 0 0 0 3px #1a5cd444; }
+    /* ───── CONTACT ───── */
+    .contact-input { width: 100%; padding: .7rem 1rem; border: 1.5px solid #e2d9c8; border-radius: 10px; background: white; font-family: inherit; font-size: .9rem; outline: none; transition: border-color .25s, box-shadow .25s; }
+    .contact-input:focus { border-color: #1247b8; box-shadow: 0 0 0 3px rgba(18,71,184,.18); }
+    /* ───── HERO INDICATOR ───── */
+    .hero-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; transition: all .3s; }
+    .hero-dot.active { background: #ffffff; transform: scale(1.4); }
+    /* ───── BADGE ───── */
+    .badge { display: inline-block; padding: .25rem .75rem; border-radius: 99px; font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    /* ───── PARALLAX BAND ───── */
+    .parallax-band {
+      background: linear-gradient(135deg, #0c2461 0%, #071122 100%);
+      position: relative; overflow: hidden;
+    }
+
+    /* ───── HOVER GLOW BUTTON ───── */
+    .btn-blue {
+      background: linear-gradient(135deg, #1247b8, #1a5cd4);
+      color: #ffffff; font-weight: 700; border-radius: 10px;
+      padding: .75rem 2rem; font-size: .9rem; letter-spacing: .06em;
+      text-transform: uppercase; transition: all .3s; box-shadow: 0 8px 24px rgba(18,71,184,.40);
+    }
+    .btn-blue:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(18,71,184,.6); }
+    .btn-outline {
+      border: 2px solid rgba(255,255,255,.7); color: white; font-weight: 700;
+      border-radius: 10px; padding: .75rem 2rem; font-size: .9rem;
+      letter-spacing: .06em; text-transform: uppercase; transition: all .3s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.12); border-color: white; }
+    /* ───── MOBILE MENU ───── */
+    #mobile-menu { max-height: 0; overflow: hidden; transition: max-height .4s ease; }
+    #mobile-menu.open { max-height: 500px; }
+    /* ───── SCROLL REVEAL ───── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s, transform .7s; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    /* ───── LOGIN MODAL ───── */
+    #loginModal { backdrop-filter: blur(8px); }
+  </style>
+</head>
+<body>
+
+<!-- PUBLIC SITE -->
+<div id="publicSite">
+  <!-- ── NAVBAR ── -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" style="background:transparent">
+    <div class="max-w-7xl mx-auto px-5 flex items-center justify-between h-20">
+      <!-- logo -->
+      <a href="#inicio" class="flex items-center gap-3">
+        <img src="../logo.jpg" alt="Escudo UEA" class="w-12 h-12 rounded-full object-cover shadow-lg border-2 border-white/40" />
+        <div class="hidden sm:block">
+          <p id="navTitle" class="font-display font-bold text-base leading-tight text-white" style="text-shadow:0 1px 4px rgba(0,0,0,.4)">Unidad Educativa</p>
+          <p id="navSub" class="text-royal-200 text-xs font-semibold tracking-widest uppercase">Atahualpa</p>
+        </div>
+      </a>
+      <!-- desktop nav -->
+      <div class="hidden md:flex items-center gap-7" id="desktopNav">
+        <a href="#nosotros" class="nav-link nav-white">Nosotros</a>
+        <a href="#oferta" class="nav-link nav-white">Oferta académica</a>
+        <a href="#admisiones" class="nav-link nav-white">Admisiones</a>
+        <a href="#contacto" class="nav-link nav-white">Contacto</a>
+        <button class="open-login btn-blue text-sm py-2.5 px-5">Ingresar al portal</button>
+      </div>
+      <!-- hamburger -->
+      <button id="hambBtn" class="md:hidden p-2">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    <!-- mobile menu -->
+    <div id="mobile-menu" class="md:hidden bg-royal-900 border-t border-white/10">
+      <div class="px-5 py-4 flex flex-col gap-3">
+        <a href="#nosotros" class="text-white/80 hover:text-royal-300 text-sm font-semibold uppercase tracking-wide py-1">Nosotros</a>
+        <a href="#oferta" class="text-white/80 hover:text-royal-300 text-sm font-semibold uppercase tracking-wide py-1">Oferta académica</a>
+        <a href="#admisiones" class="text-white/80 hover:text-royal-300 text-sm font-semibold uppercase tracking-wide py-1">Admisiones</a>
+        <a href="#contacto" class="text-white/80 hover:text-royal-300 text-sm font-semibold uppercase tracking-wide py-1">Contacto</a>
+        <button class="open-login btn-blue w-full mt-2">Ingresar al portal</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section id="inicio" class="hero-wrap">
+    <div class="hero-slide active">
+      <img src="../unidad.jpg" alt="Institución" />
+    </div>
+    <div class="hero-slide">
+      <img src="../unidad2.jpg" alt="Estudiantes" />
+    </div>
+    <div class="hero-slide">
+      <img src="../unidad3.jpg" alt="Aula" />
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="max-w-3xl pb-6">
+        <span class="badge bg-royal-500/20 text-royal-200 border border-royal-400/30 mb-4 inline-block">Ambato · Tungurahua · Ecuador</span>
+        <h1 class="font-display text-5xl md:text-7xl font-black text-white leading-none mb-4">
+          Unidad<br/><span class="text-royal-300">Educativa</span><br/>Atahualpa
+        </h1>
+        <p class="text-white/75 text-lg mb-8 max-w-lg leading-relaxed">
+          Formación integral, científica y técnica para construir el futuro con excelencia, valores y compromiso social.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#oferta" class="btn-blue">Ver oferta académica</a>
+          <a href="#admisiones" class="btn-outline">Proceso de admisión</a>
+        </div>
+      </div>
+    </div>
+    <!-- dots -->
+    <div class="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      <span class="hero-dot active" onclick="goSlide(0)"></span>
+      <span class="hero-dot" onclick="goSlide(1)"></span>
+      <span class="hero-dot" onclick="goSlide(2)"></span>
+    </div>
+    <div class="diagonal-accent"></div>
+  </section>
+
+  <!-- ── STATS BAND ── -->
+  <section class="bg-offwhite py-10 border-b border-royal-200/30">
+    <div class="max-w-7xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="stat-card pl-4 reveal">
+        <p class="font-bebas text-5xl text-royal-900">50+</p>
+        <p class="text-sm text-gray-500 font-medium mt-1">Años de historia</p>
+      </div>
+      <div class="stat-card pl-4 reveal" style="transition-delay:.1s">
+        <p class="font-bebas text-5xl text-royal-900">5</p>
+        <p class="text-sm text-gray-500 font-medium mt-1">Especialidades técnicas</p>
+      </div>
+      <div class="stat-card pl-4 reveal" style="transition-delay:.2s">
+        <p class="font-bebas text-5xl text-royal-900">2,400+</p>
+        <p class="text-sm text-gray-500 font-medium mt-1">Estudiantes activos</p>
+      </div>
+      <div class="stat-card pl-4 reveal" style="transition-delay:.3s">
+        <p class="font-bebas text-5xl text-royal-900">98%</p>
+        <p class="text-sm text-gray-500 font-medium mt-1">Tasa de graduación</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NOSOTROS ── -->
+  <section id="nosotros" class="py-24 bg-offwhite">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div class="relative reveal">
+          <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&q=80" alt="Institución"
+            class="rounded-2xl w-full h-96 object-cover shadow-2xl" />
+          <div class="absolute -bottom-6 -right-6 bg-royal-900 rounded-2xl p-5 shadow-2xl max-w-xs hidden md:block">
+            <p class="text-royal-300 font-bebas text-3xl">Desde 1970</p>
+            <p class="text-white/70 text-sm mt-1">Formando profesionales de excelencia en Ambato</p>
+          </div>
+          <div class="absolute -top-4 -left-4 w-20 h-20 rounded-xl border-4 border-royal-300 opacity-40"></div>
+        </div>
+        <div class="reveal" style="transition-delay:.2s">
+          <p class="section-label mb-3">Sobre Nosotros</p>
+          <h2 class="section-heading text-4xl md:text-5xl font-black text-royal-900 leading-tight mb-6">
+            Más de medio siglo<br/>educando con propósito
+          </h2>
+          <p class="text-gray-600 leading-relaxed mb-5">
+            La <strong class="text-royal-900">Unidad Educativa Atahualpa</strong> brinda educación de calidad en Ambato, integrando formación científica y técnica para preparar a sus estudiantes para la universidad, el emprendimiento y el trabajo profesional.
+          </p>
+          <p class="text-gray-600 leading-relaxed mb-8">
+            Nuestro enfoque combina disciplina, innovación y excelencia académica, con un compromiso real con el desarrollo integral de cada estudiante.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <span class="bg-royal-900 text-royal-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Excelencia</span>
+            <span class="bg-royal-900 text-royal-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Innovación</span>
+            <span class="bg-royal-900 text-royal-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Valores</span>
+            <span class="bg-royal-900 text-royal-300 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Comunidad</span>
+          </div>
+          <div class="mt-8 p-5 rounded-2xl border border-royal-200/50 bg-white shadow-md">
+            <p class="text-royal-600 text-xs font-bold uppercase tracking-widest mb-2">Misión</p>
+            <p class="text-royal-900 font-medium leading-relaxed">Desarrollar estudiantes con pensamiento crítico, competencia técnica y responsabilidad ciudadana para transformar su entorno.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OFERTA ACADÉMICA ── -->
+  <section id="oferta" class="parallax-band py-24 text-white">
+    <div class="max-w-7xl mx-auto px-5 relative z-10">
+      <div class="text-center mb-14 reveal">
+        <p class="section-label text-royal-300 mb-3">Lo que ofrecemos</p>
+        <h2 class="section-heading text-4xl md:text-5xl font-black text-white leading-tight">Oferta Académica</h2>
+        <p class="text-white/60 mt-4 max-w-xl mx-auto">Bachillerato en ciencias y especialidades técnicas reconocidas por el Ministerio de Educación.</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="service-card bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 reveal">
+          <div class="service-icon mb-4">
+            <svg class="w-6 h-6 text-royal-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">Bachillerato en Ciencias</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Formación sólida en matemáticas, física, química y biología para acceso a la universidad.</p>
+        </div>
+        <div class="service-card bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 reveal" style="transition-delay:.05s">
+          <div class="service-icon mb-4">
+            <svg class="w-6 h-6 text-royal-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">Mecánica Automotriz</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Diagnóstico, mantenimiento y reparación de sistemas automotrices modernos.</p>
+        </div>
+        <div class="service-card bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 reveal" style="transition-delay:.1s">
+          <div class="service-icon mb-4">
+            <svg class="w-6 h-6 text-royal-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">Electrónica de Consumo</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Reparación y mantenimiento de equipos electrónicos, circuitos integrados y soldadura.</p>
+        </div>
+        <div class="service-card bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 reveal" style="transition-delay:.15s">
+          <div class="service-icon mb-4">
+            <svg class="w-6 h-6 text-royal-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">Mecánica Industrial</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Procesos de manufactura, mecanismos y control de calidad industrial.</p>
+        </div>
+        <div class="service-card bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 reveal" style="transition-delay:.2s">
+          <div class="service-icon mb-4">
+            <svg class="w-6 h-6 text-royal-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">Instalaciones, Equipos y Máquinas Electricas</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Sistemas de instalaciones eléctricas con normativa técnica.</p>
+        </div>
+         <div class="service-card bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 reveal" style="transition-delay:.2s">
+          <div class="service-icon mb-4">
+            <svg class="w-6 h-6 text-royal-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">Básica e Inicial</h3>
+          <p class="text-white/55 text-sm leading-relaxed">Educación básica e inicial para niños y jóvenes.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ADMISIONES ── -->
+  <section id="admisiones" class="py-24 bg-offwhite">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="text-center mb-14 reveal">
+        <p class="section-label mb-3">Únete a nosotros</p>
+        <h2 class="section-heading text-4xl md:text-5xl font-black text-royal-900 leading-tight">Proceso de Admisiones</h2>
+        <p class="text-gray-500 mt-4 max-w-xl mx-auto">Tres pasos simples para comenzar tu formación con nosotros.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="relative reveal">
+          <div class="relative pl-14">
+  
+            <span class="font-bebas text-7xl text-royal-200 absolute -top-3 left-0 leading-none select-none">01</span>
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mt-8">
+              <h3 class="font-display font-bold text-xl text-royal-900 mb-3">Registro inicial</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">Acércate a secretaría para iniciar con el proceso y recibir los requisitos actualizados según el nivel de ingreso.</p>
+            </div>
+          </div>
+        </div>
+        <div class="relative reveal" style="transition-delay:.15s">
+          <div class="relative pl-14">
+            <span class="font-bebas text-7xl text-royal-200 absolute -top-3 left-0 leading-none select-none">02</span>
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mt-8">
+              <h3 class="font-display font-bold text-xl text-royal-900 mb-3">Entrega de documentos</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">Presenta documentación académica y personal según el nivel de ingreso requerido por la institución.</p>
+            </div>
+          </div>
+        </div>
+        <div class="relative reveal" style="transition-delay:.3s">
+          <div class="relative pl-14">
+            <span class="font-bebas text-7xl text-royal-200 absolute -top-3 left-0 leading-none select-none">03</span>
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mt-8">
+              <h3 class="font-display font-bold text-xl text-royal-900 mb-3">Confirmación de matrícula</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">Valida tu matrícula y horarios en las fechas oficiales del cronograma institucional. No te quedes fuera, te esperamos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-14 rounded-3xl bg-royal-900 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 reveal">
+        <div>
+          <p class="text-royal-300 font-bebas text-xl tracking-widest">¿Listo para comenzar?</p>
+          <h3 class="font-display text-2xl md:text-3xl font-bold text-white mt-1">Inscripciones abiertas 2025</h3>
+          <p class="text-white/55 text-sm mt-2">Cupos limitados — asegura el tuyo hoy mismo.</p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <a href="#contacto" class="btn-blue">Solicitar información</a>
+          <a href="mailto:colegioatahualpasecretariaa@hotmail.com" class="btn-outline">Escribir al correo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACTO ── -->
+  <section id="contacto" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid lg:grid-cols-2 gap-14 items-start">
+        <div class="reveal">
+          <p class="section-label mb-3">Estamos aquí</p>
+          <h2 class="section-heading text-4xl font-black text-royal-900 mb-8">Contacto</h2>
+          <div class="space-y-5">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-royal-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-royal-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-royal-900 text-sm">Dirección</p>
+                <p class="text-gray-500 text-sm mt-0.5">22 de Enero y Destacamento Cóndor Mirador<br/>Ambato, Ecuador — 180152</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-royal-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-royal-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-royal-900 text-sm">Correo institucional</p>
+                <p class="text-gray-500 text-sm mt-0.5">colegioatahualpasecretariaa@hotmail.com</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-royal-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-royal-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-royal-900 text-sm">Provincia</p>
+                <p class="text-gray-500 text-sm mt-0.5">Tungurahua · Ecuador</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-offwhite rounded-3xl p-8 border border-royal-200/30 shadow-xl reveal" style="transition-delay:.2s">
+          <h3 class="font-display font-bold text-2xl text-royal-900 mb-6">Envíanos un mensaje</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Nombre completo</label>
+              <input class="contact-input" placeholder="Tu nombre..." />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Correo electrónico</label>
+              <input type="email" class="contact-input" placeholder="correo@ejemplo.com" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Asunto</label>
+              <select class="contact-input">
+                <option value="">Seleccionar...</option>
+                <option>Información de admisiones</option>
+                <option>Oferta académica</option>
+                <option>Portal institucional</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Mensaje</label>
+              <textarea rows="4" class="contact-input resize-none" placeholder="Escribe tu mensaje..."></textarea>
+            </div>
+            <button class="btn-blue w-full text-center block">Enviar mensaje</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="bg-royal-950 text-white py-12">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <img src="../logo.jpg" alt="Escudo UEA" class="w-10 h-10 rounded-full object-cover border-2 border-royal-400/50" />
+            <div>
+              <p class="font-display font-bold">Unidad Educativa Atahualpa</p>
+              <p class="text-royal-300 text-xs tracking-widest uppercase">Ambato · Ecuador</p>
+            </div>
+          </div>
+          <p class="text-white/50 text-sm leading-relaxed max-w-sm">Educación de calidad con enfoque humano, innovación y compromiso social desde hace más de cinco décadas.</p>
+        </div>
+        <div>
+          <p class="text-royal-300 text-xs font-bold uppercase tracking-widest mb-4">Acceso rápido</p>
+          <ul class="space-y-2 text-sm text-white/60">
+            <li><a href="#nosotros" class="hover:text-royal-300 transition">Nosotros</a></li>
+            <li><a href="#oferta" class="hover:text-royal-300 transition">Oferta académica</a></li>
+            <li><a href="#admisiones" class="hover:text-royal-300 transition">Admisiones</a></li>
+            <li><a href="#contacto" class="hover:text-royal-300 transition">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-royal-300 text-xs font-bold uppercase tracking-widest mb-4">Portal</p>
+          <button class="open-login text-sm text-white/60 hover:text-royal-300 transition block mb-2">Ingresar como estudiante</button>
+          <button class="open-login text-sm text-white/60 hover:text-royal-300 transition block">Ingresar como administrador</button>
+        </div>
+      </div>
+      <p class="text-white/30 text-xs text-center mt-6">© 2025 Unidad Educativa Atahualpa · Todos los derechos reservados</p>
+    </div>
+  </footer>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-royal-950/70 p-4">
+  <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <p class="section-label text-sm mb-1">Portal Institucional</p>
+        <h3 class="font-display font-bold text-xl text-royal-900">Iniciar sesión</h3>
+      </div>
+      <button id="closeLogin" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition text-lg">&times;</button>
+    </div>
+    <p class="text-xs text-gray-400 mb-5">Demo: <strong>admin</strong> / admin123 &nbsp;·&nbsp; <strong>estudiante</strong> / estu123</p>
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Usuario</label>
+        <input id="loginUser" class="contact-input" placeholder="Ingresa tu usuario" required />
+      </div>
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Contraseña</label>
+        <input id="loginPass" type="password" class="contact-input" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn-blue w-full text-center">Entrar al portal</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  /* ─── Navbar scroll effect ─── */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) {
+      navbar.style.background = 'rgba(12,36,97,.97)';
+      navbar.style.boxShadow = '0 4px 24px rgba(0,0,0,.3)';
+      document.querySelectorAll('#desktopNav .nav-link').forEach(l => l.style.color = 'rgba(255,255,255,.8)');
+    } else {
+      navbar.style.background = 'transparent';
+      navbar.style.boxShadow = 'none';
+    }
+  });
+
+  /* ─── Hamburger ─── */
+  document.getElementById('hambBtn').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.toggle('open');
+  });
+
+  /* ─── Hero slider ─── */
+  const heroSlides = document.querySelectorAll('.hero-wrap .hero-slide');
+  const heroDots = document.querySelectorAll('.hero-dot');
+  let currentSlide = 0;
+  function goSlide(n) {
+    heroSlides[currentSlide].classList.remove('active');
+    heroDots[currentSlide].classList.remove('active');
+    currentSlide = n;
+    heroSlides[currentSlide].classList.add('active');
+    heroDots[currentSlide].classList.add('active');
+  }
+  setInterval(() => goSlide((currentSlide + 1) % heroSlides.length), 5000);
+
+  /* ─── Scroll reveal ─── */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ─── Login Modal ─── */
+  function openLoginModal(){ 
+    const m = document.getElementById("loginModal");
+    m.classList.remove("hidden"); 
+    m.classList.add("flex"); 
+  }
+  function closeLoginModal(){ 
+    const m = document.getElementById("loginModal");
+    m.classList.add("hidden"); 
+    m.classList.remove("flex"); 
+  }
+
+  document.querySelectorAll(".open-login").forEach(btn => btn.addEventListener("click", openLoginModal));
+  document.getElementById("closeLogin").addEventListener("click", closeLoginModal);
+
+  // El formulario de login ahora solo muestra alerta (porque quitaste los paneles)
+  document.getElementById("loginForm").addEventListener("submit", e => {
+    e.preventDefault();
+    alert("El portal administrativo ha sido removido de esta versión.");
+    closeLoginModal();
+  });
+</script>
+</body>
+</html>
