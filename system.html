@@ -49,9 +49,16 @@
       .hero-slide { display: none; }
       .hero-slide.active { display: block; }
       .choices { margin-bottom: 0; width: 100%; }
-      .choices__inner { border-radius: .75rem; min-height: 42px; border-color: #cbd5e1; }
+      .choices__inner { border-radius: .75rem; min-height: 42px; border-color: #cbd5e1; padding-right: 8px; }
       .choices__list--single .choices__item { white-space: normal; line-height: 1.35; }
       .choices__list--dropdown .choices__item { white-space: normal; line-height: 1.35; }
+      .choices__input { background: transparent; border: none; color: #1a3b76; font-size: 0.95rem; font-weight: 500; padding: 4px 8px; min-width: 100px; margin-right: 0; }
+      .choices__input::placeholder { color: #94a3b8; opacity: 0.8; }
+      .choices__input:focus { outline: none; background: rgba(18, 71, 184, 0.04); border-radius: 6px; }
+      .choices__list--dropdown .choices__group { border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 8px; }
+      .choices__list--dropdown .choices__heading { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; }
+      #mobileAdminMenu.open,
+      #mobileAdminBackdrop.open { display: block; }
     </style>
   </head>
   <body class="min-h-screen bg-[radial-gradient(circle_at_15%_20%,#dce8ff_0%,transparent_32%),radial-gradient(circle_at_85%_0%,#b8d0ff_0%,transparent_28%),linear-gradient(180deg,#f5f8ff_0%,#eef4ff_100%)] font-body text-royal-900">
@@ -61,26 +68,55 @@
 
     <section id="studentApp" class="hidden"></section>
 
-    <div id="adminApp" class="hidden lg:grid lg:min-h-screen lg:grid-cols-[270px_1fr]">
-      <aside class="border-r border-royal-200/70 bg-white/90 p-4 shadow-[0_16px_38px_-28px_rgba(20,43,87,0.42)] sm:p-6 backdrop-blur">
+    <div id="adminApp" class="hidden min-h-screen flex-col lg:grid lg:grid-cols-[270px_1fr]">
+      <header class="relative z-[60] border-b border-white/10 bg-[rgba(26,59,118,.92)] px-4 py-3 shadow-[0_16px_38px_-28px_rgba(0,0,0,.35)] backdrop-blur lg:hidden">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="font-bebas text-sm tracking-[0.2em] text-royal-200">SISTEMA DE HORARIOS</p>
+            <h1 class="font-heading text-xl font-bold text-white">Panel Admin</h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="mobileMenuToggle" class="rounded-xl border border-white/20 bg-white/10 p-2 text-white shadow-sm transition hover:bg-white/18" aria-label="Abrir navegación">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div id="mobileAdminBackdrop" class="hidden fixed inset-x-0 bottom-0 top-[72px] z-40 bg-slate-950/35 backdrop-blur-[1px] lg:hidden"></div>
+
+      <div id="mobileAdminMenu" class="hidden fixed right-3 top-[72px] z-50 max-h-[calc(100vh-88px)] w-[min(20rem,calc(100vw-1.5rem))] overflow-y-auto rounded-3xl border border-white/10 bg-[rgba(26,59,118,.98)] p-3 shadow-[0_24px_60px_rgba(0,0,0,.32)] lg:hidden">
+        <nav class="grid grid-cols-1 gap-2 text-sm text-white">
+          <button data-view="dashboard" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Dashboard</button>
+          <button data-view="horarios" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Horarios</button>
+          <button data-view="docentes" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Docentes</button>
+          <button data-view="materias" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Materias</button>
+          <button data-view="cursos" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Cursos</button>
+          <button data-view="asignaciones" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Asignaciones</button>
+          <button data-view="espacios" class="menu-btn w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/12">Aulas/Labs</button>
+          <button data-action="logout" class="logout-menu-btn mt-2 w-full rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-left font-bold text-white shadow-sm transition hover:bg-white/18">Cerrar sesión</button>
+        </nav>
+      </div>
+
+      <aside class="hidden border-r border-royal-200/70 bg-white/90 p-4 shadow-[0_16px_38px_-28px_rgba(20,43,87,0.42)] backdrop-blur lg:block sm:p-6">
         <p class="font-bebas text-sm tracking-[0.2em] text-brand-600">SISTEMA DE HORARIOS</p>
         <h1 class="mt-2 font-heading text-2xl font-bold text-royal-900">Panel Admin</h1>
 
-        <nav class="mt-6 grid grid-cols-2 gap-2 text-sm sm:mt-8 sm:block sm:space-y-2">
+        <nav class="mt-6 grid grid-cols-1 gap-2 text-sm sm:mt-8">
           <button data-view="dashboard" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Dashboard</button>
           <button data-view="horarios" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Horarios</button>
-          <button data-view="docentes" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Docentes </button>
+          <button data-view="docentes" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Docentes</button>
           <button data-view="materias" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Materias</button>
           <button data-view="cursos" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Cursos</button>
           <button data-view="asignaciones" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Asignaciones</button>
           <button data-view="espacios" class="menu-btn w-full rounded-xl px-3 py-2 text-left font-bold">Aulas/Labs</button>
+          <button data-action="logout" class="logout-menu-btn mt-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-left font-bold text-rose-700">Cerrar sesión</button>
         </nav>
       </aside>
 
       <main class="bg-gradient-to-br from-[#f5f8ff] to-[#eef4ff] p-4 sm:p-8">
-        <div class="mb-4 flex justify-end">
-          <button id="logoutAdmin" class="rounded-xl border border-royal-300 bg-white px-3 py-2 text-sm font-bold text-royal-900 shadow-sm transition hover:bg-royal-50">Cerrar sesión</button>
-        </div>
         <div id="content"></div>
       </main>
     </div>
@@ -137,6 +173,7 @@
 
       const app = load();
       let studentSelectedHorarioCursoId = null;
+      let adminMenuOpen = false;
 
       let timer = null;
       let heroSliderTimer = null;
@@ -589,13 +626,6 @@
           });
         }
 
-        const logoutAdmin = document.getElementById("logoutAdmin");
-        if (logoutAdmin) {
-          logoutAdmin.addEventListener("click", () => {
-            clearAuth();
-            setPortalMode("public");
-          });
-        }
 
         const logoutStudent = document.getElementById("logoutStudent");
         if (logoutStudent) {
@@ -607,17 +637,9 @@
       }
 
       function bootstrapPortal() {
-        app.view = "horarios";
+        app.view = "dashboard";
         setPortalMode("admin");
         render();
-
-        const logoutAdmin = document.getElementById("logoutAdmin");
-        if (logoutAdmin) {
-          logoutAdmin.addEventListener("click", () => {
-            clearAuth();
-            window.location.href = "index.html";
-          });
-        }
       }
 
       function setView(view) {
@@ -630,9 +652,20 @@
         return active ? "bg-brand-100 text-brand-800" : "text-slate-600 hover:bg-slate-100";
       }
 
+      function mobileMenuClasses(active) {
+        return active
+          ? "bg-white text-royal-900 shadow-[0_10px_24px_rgba(255,255,255,.12)]"
+          : "bg-white/6 text-white/95 hover:bg-white/12";
+      }
+
       function render() {
+        destroySearchableSelects();
         document.querySelectorAll(".menu-btn").forEach((btn) => {
-          btn.className = `menu-btn w-full rounded-xl px-3 py-2 text-left font-bold ${menuClasses(app.view === btn.dataset.view)}`;
+          const active = app.view === btn.dataset.view;
+          const isMobileMenu = !!btn.closest("#mobileAdminMenu");
+          btn.className = isMobileMenu
+            ? `menu-btn w-full rounded-2xl px-3 py-2 text-left font-bold transition ${mobileMenuClasses(active)}`
+            : `menu-btn w-full rounded-xl px-3 py-2 text-left font-bold ${menuClasses(active)}`;
         });
 
         const content = document.getElementById("content");
@@ -656,6 +689,34 @@
       function initSearchableSelects() {
         if (typeof Choices === "undefined") return;
 
+        document.querySelectorAll("select.searchable-select").forEach((select) => {
+          const firstOptionLabel = (select.options[0]?.textContent || "opción")
+            .replace(/^Seleccionar\s+/i, "")
+            .trim()
+            .toLowerCase();
+          const placeholderValue = `Buscar ${firstOptionLabel}...`;
+          const instance = new Choices(select, {
+            searchEnabled: true,
+            searchChoices: true,
+            searchFloor: 0,
+            renderChoiceLimit: -1,
+            shouldSort: false,
+            itemSelectText: "",
+            allowHTML: false,
+            searchResultLimit: 100,
+            placeholder: true,
+            placeholderValue,
+            searchPlaceholderValue: placeholderValue,
+            fuseOptions: {
+              threshold: 0.25,
+              distance: 100
+            }
+          });
+          searchableInstances.push(instance);
+        });
+      }
+
+      function destroySearchableSelects() {
         searchableInstances.forEach((instance) => {
           try {
             instance.destroy();
@@ -664,19 +725,6 @@
           }
         });
         searchableInstances = [];
-
-        document.querySelectorAll("select.searchable-select").forEach((select) => {
-          const instance = new Choices(select, {
-            searchEnabled: true,
-            shouldSort: false,
-            itemSelectText: "",
-            allowHTML: false,
-            searchResultLimit: 100,
-            placeholder: true,
-            placeholderValue: "Buscar..."
-          });
-          searchableInstances.push(instance);
-        });
       }
 
       function dashboardView() {
@@ -697,61 +745,119 @@
         const cobertura = totalCursos ? Math.min(100, Math.round((totalAsignaciones / totalCursos) * 10)) : 0;
 
         return `
-          <section class="space-y-4">
-            <article class="rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 shadow-sm">
-              <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Resumen general</p>
-              <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <h3 class="font-heading text-2xl font-semibold">Panel académico</h3>
-                  <p class="mt-1 text-sm text-slate-600">Cobertura estimada de planificación: ${cobertura}%</p>
+          <section class="space-y-4 sm:space-y-5">
+            <article class="rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div class="space-y-1">
+                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Resumen general</p>
+                  <h3 class="font-heading text-2xl font-semibold text-slate-900 sm:text-3xl">Panel académico</h3>
+                  <p class="max-w-2xl text-sm text-slate-600">Cobertura estimada de planificación: ${cobertura}% · ${totalCursos} cursos activos.</p>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-700">${totalCursos} cursos activos</div>
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-center">
+                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Rotaciones</p>
+                    <p class="font-bebas text-3xl leading-none text-slate-900">${rotaciones}</p>
+                  </div>
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-center">
+                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Promedio</p>
+                    <p class="font-bebas text-3xl leading-none text-slate-900">${totalCursos ? (totalAsignaciones / totalCursos).toFixed(1) : "0.0"}</p>
+                  </div>
+                </div>
               </div>
             </article>
 
-            <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              <article class="rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm"><p class="text-xs font-bold uppercase tracking-wide text-brand-700">Docentes</p><p class="mt-2 font-bebas text-5xl leading-none text-brand-700">${totalDocentes}</p></article>
-              <article class="rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm"><p class="text-xs font-bold uppercase tracking-wide text-brand-700">Materias</p><p class="mt-2 font-bebas text-5xl leading-none text-brand-700">${totalMaterias}</p></article>
-              <article class="rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm"><p class="text-xs font-bold uppercase tracking-wide text-brand-700">Cursos</p><p class="mt-2 font-bebas text-5xl leading-none text-brand-700">${totalCursos}</p></article>
-              <article class="rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm"><p class="text-xs font-bold uppercase tracking-wide text-brand-700">Grupos</p><p class="mt-2 font-bebas text-5xl leading-none text-brand-700">${totalGrupos}</p></article>
-              <article class="rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm"><p class="text-xs font-bold uppercase tracking-wide text-brand-700">Asignaciones</p><p class="mt-2 font-bebas text-5xl leading-none text-brand-700">${totalAsignaciones}</p></article>
-              <article class="rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm"><p class="text-xs font-bold uppercase tracking-wide text-brand-700">Espacios</p><p class="mt-2 font-bebas text-5xl leading-none text-brand-700">${totalEspacios}</p><p class="mt-1 text-xs text-slate-500">${aulas} aulas · ${laboratorios} laboratorios</p></article>
+            <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <article class="flex items-center gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm sm:min-h-[96px]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wide text-brand-700">Docentes</p>
+                  <p class="mt-1 font-bebas text-4xl leading-none text-brand-700 sm:text-5xl">${totalDocentes}</p>
+                </div>
+              </article>
+              <article class="flex items-center gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm sm:min-h-[96px]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wide text-brand-700">Materias</p>
+                  <p class="mt-1 font-bebas text-4xl leading-none text-brand-700 sm:text-5xl">${totalMaterias}</p>
+                </div>
+              </article>
+              <article class="flex items-center gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm sm:min-h-[96px]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h16"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wide text-brand-700">Cursos</p>
+                  <p class="mt-1 font-bebas text-4xl leading-none text-brand-700 sm:text-5xl">${totalCursos}</p>
+                </div>
+              </article>
+              <article class="flex items-center gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm sm:min-h-[96px]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wide text-brand-700">Grupos</p>
+                  <p class="mt-1 font-bebas text-4xl leading-none text-brand-700 sm:text-5xl">${totalGrupos}</p>
+                </div>
+              </article>
+              <article class="flex items-center gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm sm:min-h-[96px]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wide text-brand-700">Asignaciones</p>
+                  <p class="mt-1 font-bebas text-4xl leading-none text-brand-700 sm:text-5xl">${totalAsignaciones}</p>
+                </div>
+              </article>
+              <article class="flex items-center gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-4 shadow-sm sm:min-h-[96px]">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wide text-brand-700">Espacios</p>
+                  <p class="mt-1 font-bebas text-4xl leading-none text-brand-700 sm:text-5xl">${totalEspacios}</p>
+                  <p class="mt-1 text-xs text-slate-500">${aulas} aulas · ${laboratorios} laboratorios</p>
+                </div>
+              </article>
             </section>
 
             <section class="grid gap-4 lg:grid-cols-2">
-              <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                 <h4 class="font-heading text-lg font-semibold text-slate-900">Cursos por nivel</h4>
                 <div class="mt-4 space-y-3 text-sm">
                   <div>
-                    <div class="mb-1 flex items-center justify-between"><span class="text-slate-600">Educación Inicial</span><span class="font-bold text-slate-800">${cursosInicial}</span></div>
-                    <div class="h-2 rounded-full bg-slate-100"><div class="h-full rounded-full bg-cyan-500" style="width:${totalCursos ? Math.round((cursosInicial / totalCursos) * 100) : 0}%"></div></div>
+                    <div class="mb-1 flex items-center justify-between gap-3"><span class="text-slate-600">Educación Inicial</span><span class="font-bold text-slate-800">${cursosInicial}</span></div>
+                    <div class="h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-cyan-500" style="width:${totalCursos ? Math.round((cursosInicial / totalCursos) * 100) : 0}%"></div></div>
                   </div>
                   <div>
-                    <div class="mb-1 flex items-center justify-between"><span class="text-slate-600">Educación Básica</span><span class="font-bold text-slate-800">${cursosBasica}</span></div>
-                    <div class="h-2 rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width:${totalCursos ? Math.round((cursosBasica / totalCursos) * 100) : 0}%"></div></div>
+                    <div class="mb-1 flex items-center justify-between gap-3"><span class="text-slate-600">Educación Básica</span><span class="font-bold text-slate-800">${cursosBasica}</span></div>
+                    <div class="h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width:${totalCursos ? Math.round((cursosBasica / totalCursos) * 100) : 0}%"></div></div>
                   </div>
                   <div>
-                    <div class="mb-1 flex items-center justify-between"><span class="text-slate-600">Bachillerato</span><span class="font-bold text-slate-800">${cursosBachillerato}</span></div>
-                    <div class="h-2 rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-600" style="width:${totalCursos ? Math.round((cursosBachillerato / totalCursos) * 100) : 0}%"></div></div>
+                    <div class="mb-1 flex items-center justify-between gap-3"><span class="text-slate-600">Bachillerato</span><span class="font-bold text-slate-800">${cursosBachillerato}</span></div>
+                    <div class="h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-600" style="width:${totalCursos ? Math.round((cursosBachillerato / totalCursos) * 100) : 0}%"></div></div>
                   </div>
                 </div>
               </article>
 
-              <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                 <h4 class="font-heading text-lg font-semibold text-slate-900">Estado de planificación</h4>
                 <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Rotaciones técnicas</p>
-                    <p class="mt-1 font-heading text-2xl font-semibold text-slate-900">${rotaciones}</p>
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Rotaciones técnicas</p>
+                    <p class="mt-1 font-heading text-3xl font-semibold text-slate-900">${rotaciones}</p>
                   </div>
-                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Promedio por curso</p>
-                    <p class="mt-1 font-heading text-2xl font-semibold text-slate-900">${totalCursos ? (totalAsignaciones / totalCursos).toFixed(1) : "0.0"}</p>
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Promedio por curso</p>
+                    <p class="mt-1 font-heading text-3xl font-semibold text-slate-900">${totalCursos ? (totalAsignaciones / totalCursos).toFixed(1) : "0.0"}</p>
                   </div>
                 </div>
-                <div class="mt-4 rounded-xl border border-slate-200 p-3">
-                  <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Cobertura</p>
-                  <div class="mt-2 h-2 rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-sky-500" style="width:${cobertura}%"></div></div>
+                <div class="mt-4 rounded-2xl border border-slate-200 p-3 sm:p-4">
+                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Cobertura</p>
+                  <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-sky-500" style="width:${cobertura}%"></div></div>
                   <p class="mt-2 text-xs text-slate-600">Basado en la relación asignaciones/cursos.</p>
                 </div>
               </article>
@@ -1489,8 +1595,28 @@
       }
 
       function bindCommon() {
-        document.querySelectorAll(".menu-btn").forEach((btn) => {
-          btn.addEventListener("click", () => setView(btn.dataset.view));
+        document.querySelectorAll(".menu-btn[data-view]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            setView(btn.dataset.view);
+            closeMobileMenu();
+          });
+        });
+
+        const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+        if (mobileMenuToggle) {
+          mobileMenuToggle.addEventListener("click", toggleMobileMenu);
+        }
+
+        const mobileBackdrop = document.getElementById("mobileAdminBackdrop");
+        if (mobileBackdrop) {
+          mobileBackdrop.addEventListener("click", closeMobileMenu);
+        }
+
+        document.querySelectorAll(".logout-menu-btn").forEach((logoutBtn) => {
+          logoutBtn.addEventListener("click", () => {
+            clearAuth();
+            window.location.href = "inicio.html?login=1";
+          });
         });
 
         const quickGenerate = document.getElementById("quickGenerate");
@@ -1549,6 +1675,30 @@
             render();
           }, (i + 1) * 500);
         });
+      }
+
+      function toggleMobileMenu() {
+        adminMenuOpen = !adminMenuOpen;
+        const mobileMenu = document.getElementById("mobileAdminMenu");
+        const mobileBackdrop = document.getElementById("mobileAdminBackdrop");
+        if (mobileMenu) {
+          mobileMenu.classList.toggle("open", adminMenuOpen);
+        }
+        if (mobileBackdrop) {
+          mobileBackdrop.classList.toggle("open", adminMenuOpen);
+        }
+      }
+
+      function closeMobileMenu() {
+        adminMenuOpen = false;
+        const mobileMenu = document.getElementById("mobileAdminMenu");
+        const mobileBackdrop = document.getElementById("mobileAdminBackdrop");
+        if (mobileMenu) {
+          mobileMenu.classList.remove("open");
+        }
+        if (mobileBackdrop) {
+          mobileBackdrop.classList.remove("open");
+        }
       }
 
       function runSim() {
@@ -1918,7 +2068,7 @@
             if (materia_id === null) return;
             const curso_id = prompt("Editar curso_id", String(a.curso_id));
             if (curso_id === null) return;
-            const grupo_id = prompt("Editar grupo_id (vacío para NULL)", a.grupo_id == null ? "" : String(a.grupo_id));
+            const grupo_id = prompt("Editar grupo_id (vacío para quitar)", a.grupo_id == null ? "" : String(a.grupo_id));
             if (grupo_id === null) return;
 
             const parsedGrupo = grupo_id.trim() === "" ? null : Number(grupo_id);
