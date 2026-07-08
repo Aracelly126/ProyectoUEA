@@ -45,6 +45,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
     <style>
       .hero-slide { display: none; }
       .hero-slide.active { display: block; }
@@ -59,6 +60,73 @@
       .choices__list--dropdown .choices__heading { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; }
       #mobileAdminMenu.open,
       #mobileAdminBackdrop.open { display: block; }
+
+      /* Tom Select: un solo borde en el mismo cuadro */
+      .ts-wrapper,
+      .ts-wrapper.form-control,
+      .ts-wrapper.input,
+      .ts-wrapper[class*="border"] {
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .ts-wrapper .ts-control {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: .75rem !important;
+        min-height: 42px;
+        box-shadow: none !important;
+        background: #fff !important;
+        padding: .5rem .75rem !important;
+      }
+      .ts-wrapper.focus .ts-control {
+        border-color: #1247b8 !important;
+        box-shadow: 0 0 0 3px rgba(18, 71, 184, 0.12) !important;
+      }
+      .ts-wrapper .ts-control input {
+        border: 0 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .crud-action-cell {
+        min-width: 92px;
+        white-space: nowrap;
+      }
+      .crud-actions {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+      }
+      .icon-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        border: 1px solid transparent;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .icon-action-btn:hover {
+        transform: translateY(-1px);
+      }
+      .icon-action-btn svg {
+        width: 0.95rem;
+        height: 0.95rem;
+      }
+      @media (max-width: 640px) {
+        .crud-action-cell {
+          min-width: 72px;
+        }
+        .icon-action-btn {
+          width: 1.8rem;
+          height: 1.8rem;
+        }
+      }
     </style>
   </head>
   <body class="min-h-screen bg-[radial-gradient(circle_at_15%_20%,#dce8ff_0%,transparent_32%),radial-gradient(circle_at_85%_0%,#b8d0ff_0%,transparent_28%),linear-gradient(180deg,#f5f8ff_0%,#eef4ff_100%)] font-body text-royal-900">
@@ -122,6 +190,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
       const KEY = "eduflow-admin-v3";
       const AUTH_KEY = "eduflow-auth-v1";
@@ -658,6 +727,17 @@
           : "bg-white/6 text-white/95 hover:bg-white/12";
       }
 
+      function enableInputAutocomplete(root = document) {
+        root.querySelectorAll("input").forEach((input) => {
+          const type = (input.getAttribute("type") || "text").toLowerCase();
+          const blocked = ["hidden", "button", "submit", "reset", "checkbox", "radio", "file"];
+          if (blocked.includes(type) || input.hasAttribute("readonly")) return;
+          if (!input.hasAttribute("autocomplete")) {
+            input.setAttribute("autocomplete", "on");
+          }
+        });
+      }
+
       function render() {
         destroySearchableSelects();
         document.querySelectorAll(".menu-btn").forEach((btn) => {
@@ -684,33 +764,23 @@
         if (app.view === "grupos") bindGrupos();
         if (app.view === "asignaciones") bindAsignaciones();
         initSearchableSelects();
+        enableInputAutocomplete(document);
       }
 
       function initSearchableSelects() {
-        if (typeof Choices === "undefined") return;
+        if (typeof TomSelect === "undefined") return;
 
-        document.querySelectorAll("select.searchable-select").forEach((select) => {
-          const firstOptionLabel = (select.options[0]?.textContent || "opción")
+        document.querySelectorAll("select").forEach((select) => {
+          if (select.tomselect) return;
+          const firstOptionLabel = (select.options[0]?.textContent || "opcion")
             .replace(/^Seleccionar\s+/i, "")
             .trim()
             .toLowerCase();
-          const placeholderValue = `Buscar ${firstOptionLabel}...`;
-          const instance = new Choices(select, {
-            searchEnabled: true,
-            searchChoices: true,
-            searchFloor: 0,
-            renderChoiceLimit: -1,
-            shouldSort: false,
-            itemSelectText: "",
-            allowHTML: false,
-            searchResultLimit: 100,
-            placeholder: true,
-            placeholderValue,
-            searchPlaceholderValue: placeholderValue,
-            fuseOptions: {
-              threshold: 0.25,
-              distance: 100
-            }
+          const instance = new TomSelect(select, {
+            create: false,
+            sortField: null,
+            maxOptions: 500,
+            placeholder: `Buscar ${firstOptionLabel || "opcion"}...`
           });
           searchableInstances.push(instance);
         });
@@ -1024,7 +1094,7 @@
                   ${(app.grupos || [])
                     .map((g) => {
                       const curso = app.cursos.find((c) => c.id === Number(g.curso_id));
-                      return `<tr class="border-t border-slate-100"><td class="px-3 py-2">${g.id}</td><td class="px-3 py-2">${g.nombre}</td><td class="px-3 py-2">${curso ? curso.nombre : g.curso_id}</td><td class="px-3 py-2">${Number(g.estudiantes) || 0}</td><td class="px-3 py-2"><button class="edit-grupo-btn rounded bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700" data-id="${g.id}">Editar</button><button class="del-grupo-btn ml-2 rounded bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700" data-id="${g.id}">Eliminar</button></td></tr>`;
+                      return `<tr class="border-t border-slate-100"><td class="px-3 py-2">${g.id}</td><td class="px-3 py-2">${g.nombre}</td><td class="px-3 py-2">${curso ? curso.nombre : g.curso_id}</td><td class="px-3 py-2">${Number(g.estudiantes) || 0}</td><td class="crud-action-cell px-3 py-2"><div class="crud-actions"><button class="edit-grupo-btn icon-action-btn bg-amber-100 text-amber-700" data-id="${g.id}" aria-label="Editar" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button><button class="del-grupo-btn icon-action-btn bg-rose-100 text-rose-700" data-id="${g.id}" aria-label="Eliminar" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></td></tr>`;
                     })
                     .join("")}
                 </tbody>
@@ -1090,14 +1160,13 @@
 
             <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200">
               <table class="min-w-full text-sm">
-                <thead class="bg-slate-100"><tr><th class="px-3 py-2 text-left">Docente</th><th class="px-3 py-2 text-left">Materia</th><th class="px-3 py-2 text-left">Curso</th><th class="px-3 py-2 text-left">Grupo</th><th class="px-3 py-2 text-left">Detalle</th><th class="px-3 py-2 text-left">Acciones</th></tr></thead>
+                <thead class="bg-slate-100"><tr><th class="px-3 py-2 text-left">Docente</th><th class="px-3 py-2 text-left">Materia</th><th class="px-3 py-2 text-left">Curso</th><th class="px-3 py-2 text-left">Detalle</th><th class="px-3 py-2 text-left">Acciones</th></tr></thead>
                 <tbody>
                   ${(app.asignaciones || [])
                     .map((a) => {
                       const docente = app.docentes.find((d) => d.id === Number(a.docente_id));
                       const materia = app.materias.find((m) => m.id === Number(a.materia_id));
                       const curso = app.cursos.find((c) => c.id === Number(a.curso_id));
-                      const grupo = (app.grupos || []).find((g) => g.id === Number(a.grupo_id));
                       const rot = a.rotacion;
                       const rotDoc1 = rot ? app.docentes.find((d) => d.id === Number(rot.docente1_id)) : null;
                       const rotDoc2 = rot ? app.docentes.find((d) => d.id === Number(rot.docente2_id)) : null;
@@ -1106,7 +1175,7 @@
                       const docenteText = rot ? `${rotDoc1 ? rotDoc1.nombre : "-"} / ${rotDoc2 ? rotDoc2.nombre : "-"}` : (docente ? docente.nombre : "-");
                       const materiaText = rot ? `${rotMat1 ? rotMat1.nombre : "-"} / ${rotMat2 ? rotMat2.nombre : "-"}` : (materia ? materia.nombre : "-");
                       const detalle = rot ? "Rotación técnica" : "Asignación normal";
-                      return `<tr class="border-t border-slate-100"><td class="px-3 py-2">${docenteText}</td><td class="px-3 py-2">${materiaText}</td><td class="px-3 py-2">${curso ? curso.nombre : "-"}</td><td class="px-3 py-2">${grupo ? grupo.nombre : "-"}</td><td class="px-3 py-2">${detalle}</td><td class="px-3 py-2"><button class="edit-asig-btn rounded bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700" data-id="${a.id}">Editar</button><button class="del-asig-btn ml-2 rounded bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700" data-id="${a.id}">Eliminar</button></td></tr>`;
+                      return `<tr class="border-t border-slate-100"><td class="px-3 py-2">${docenteText}</td><td class="px-3 py-2">${materiaText}</td><td class="px-3 py-2">${curso ? curso.nombre : "-"}</td><td class="px-3 py-2">${detalle}</td><td class="crud-action-cell px-3 py-2"><div class="crud-actions"><button class="edit-asig-btn icon-action-btn bg-amber-100 text-amber-700" data-id="${a.id}" aria-label="Editar" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button><button class="del-asig-btn icon-action-btn bg-rose-100 text-rose-700" data-id="${a.id}" aria-label="Eliminar" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></td></tr>`;
                     })
                     .join("")}
                 </tbody>
@@ -1580,9 +1649,15 @@
                     .map(
                       (item) => `<tr class="border-t border-slate-100">
                         ${fields.map((f) => `<td class="px-3 py-2">${item[f]}</td>`).join("")}
-                        <td class="px-3 py-2">
-                          <button class="edit-btn rounded bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700" data-id="${item.id}">Editar</button>
-                          <button class="del-btn ml-2 rounded bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700" data-id="${item.id}">Eliminar</button>
+                        <td class="crud-action-cell px-3 py-2">
+                          <div class="crud-actions">
+                            <button class="edit-btn icon-action-btn bg-amber-100 text-amber-700" data-id="${item.id}" aria-label="Editar" title="Editar">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                            </button>
+                            <button class="del-btn icon-action-btn bg-rose-100 text-rose-700" data-id="${item.id}" aria-label="Eliminar" title="Eliminar">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            </button>
+                          </div>
                         </td>
                       </tr>`
                     )
@@ -1734,6 +1809,225 @@
         }, 220);
       }
 
+      function humanizeFieldName(field) {
+        const labels = {
+          nombre: "Nombre",
+          especialidad: "Especialidad",
+          jornada: "Jornada",
+          nivel: "Nivel",
+          tipo_materia: "Tipo de materia",
+          paralelo: "Paralelo",
+          bloque: "Bloque",
+          tipo: "Tipo",
+          capacidad: "Capacidad",
+          docente_id: "Docente",
+          materia_id: "Materia",
+          curso_id: "Curso",
+          grupo_id: "Grupo",
+          estudiantes: "Estudiantes"
+        };
+        return labels[field] || field.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+      }
+
+      function getFieldOptions(field) {
+        if (field === "nivel") return NIVELES.map((n) => ({ value: n.label, label: n.label }));
+        if (field === "jornada") return JORNADAS.map((j) => ({ value: j.label, label: j.label }));
+        if (field === "bloque") return BLOQUES.map((b) => ({ value: b.label, label: b.label }));
+        if (field === "tipo") return TIPOS.map((t) => ({ value: t.label, label: t.label }));
+        if (field === "tipo_materia") return TIPOS_MATERIA.map((t) => ({ value: t.label, label: t.label }));
+        return null;
+      }
+
+      function openModal({ title, bodyBuilder, actionsBuilder }) {
+        return new Promise((resolve) => {
+          const overlay = document.createElement("div");
+          overlay.className = "fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/55 p-4";
+          overlay.innerHTML = `
+            <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-[0_22px_70px_rgba(15,23,42,.35)]">
+              <div class="border-b border-slate-200 px-5 py-4">
+                <h3 class="font-heading text-xl font-semibold text-slate-900">${title}</h3>
+              </div>
+              <div id="modalBody" class="px-5 py-4"></div>
+              <div id="modalActions" class="flex items-center justify-end gap-2 border-t border-slate-200 px-5 py-4"></div>
+            </div>
+          `;
+
+          document.body.appendChild(overlay);
+
+          let settled = false;
+          const finish = (value) => {
+            if (settled) return;
+            settled = true;
+            document.removeEventListener("keydown", onEsc);
+            overlay.remove();
+            resolve(value);
+          };
+
+          const onEsc = (e) => {
+            if (e.key === "Escape") finish(null);
+          };
+
+          document.addEventListener("keydown", onEsc);
+
+          overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) finish(null);
+          });
+
+          const body = overlay.querySelector("#modalBody");
+          const actions = overlay.querySelector("#modalActions");
+          if (bodyBuilder) bodyBuilder(body, finish);
+          if (actionsBuilder) actionsBuilder(actions, finish);
+        });
+      }
+
+      function showInfoModal(title, message) {
+        return openModal({
+          title,
+          bodyBuilder: (body) => {
+            body.innerHTML = `<p class="text-sm text-slate-600">${message}</p>`;
+          },
+          actionsBuilder: (actions, finish) => {
+            const okBtn = document.createElement("button");
+            okBtn.className = "rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white";
+            okBtn.textContent = "Entendido";
+            okBtn.addEventListener("click", () => finish(true));
+            actions.appendChild(okBtn);
+          }
+        });
+      }
+
+      function showConfirmModal({ title, message, confirmText = "Confirmar", confirmClass = "bg-rose-600 hover:bg-rose-700" }) {
+        return openModal({
+          title,
+          bodyBuilder: (body) => {
+            body.innerHTML = `<p class="text-sm text-slate-600">${message}</p>`;
+          },
+          actionsBuilder: (actions, finish) => {
+            const cancelBtn = document.createElement("button");
+            cancelBtn.className = "rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700";
+            cancelBtn.textContent = "Cancelar";
+            cancelBtn.addEventListener("click", () => finish(false));
+
+            const confirmBtn = document.createElement("button");
+            confirmBtn.className = `rounded-xl px-4 py-2 text-sm font-bold text-white ${confirmClass}`;
+            confirmBtn.textContent = confirmText;
+            confirmBtn.addEventListener("click", () => finish(true));
+
+            actions.appendChild(cancelBtn);
+            actions.appendChild(confirmBtn);
+          }
+        }).then((result) => !!result);
+      }
+
+      function showEditModal({ title, fields, submitText = "Guardar cambios" }) {
+        return openModal({
+          title,
+          bodyBuilder: (body, finish) => {
+            const form = document.createElement("form");
+            form.className = "grid gap-3";
+
+            fields.forEach((field) => {
+              const wrap = document.createElement("label");
+              wrap.className = "grid gap-1";
+
+              const label = document.createElement("span");
+              label.className = "text-xs font-bold uppercase tracking-wide text-slate-600";
+              label.textContent = field.label;
+
+              let control;
+              if (field.type === "select") {
+                control = document.createElement("select");
+                (field.options || []).forEach((opt) => {
+                  const option = document.createElement("option");
+                  option.value = String(opt.value);
+                  option.textContent = opt.label;
+                  control.appendChild(option);
+                });
+                control.value = field.value == null ? "" : String(field.value);
+              } else {
+                control = document.createElement("input");
+                control.type = field.type || "text";
+                control.value = field.value == null ? "" : String(field.value);
+                if (field.placeholder) control.placeholder = field.placeholder;
+                if (field.min != null) control.min = String(field.min);
+              }
+
+              control.name = field.name;
+              control.required = !!field.required;
+              control.className = "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100";
+
+              wrap.appendChild(label);
+              wrap.appendChild(control);
+              form.appendChild(wrap);
+            });
+
+            form.addEventListener("submit", (e) => {
+              e.preventDefault();
+              const data = {};
+              fields.forEach((field) => {
+                const input = form.elements[field.name];
+                data[field.name] = input ? String(input.value).trim() : "";
+              });
+              finish(data);
+            });
+
+            body.appendChild(form);
+          },
+          actionsBuilder: (actions, finish) => {
+            const form = document.querySelector(".fixed.inset-0.z-\[120\] form");
+
+            const cancelBtn = document.createElement("button");
+            cancelBtn.type = "button";
+            cancelBtn.className = "rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700";
+            cancelBtn.textContent = "Cancelar";
+            cancelBtn.addEventListener("click", () => finish(null));
+
+            const saveBtn = document.createElement("button");
+            saveBtn.type = "button";
+            saveBtn.className = "rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white hover:bg-brand-700";
+            saveBtn.textContent = submitText;
+            saveBtn.addEventListener("click", () => {
+              if (form) form.requestSubmit();
+            });
+
+            actions.appendChild(cancelBtn);
+            actions.appendChild(saveBtn);
+          }
+        });
+      }
+
+      function hasDocenteAssignments(docenteId) {
+        return (app.asignaciones || []).some((a) => {
+          if (Number(a.docente_id) === docenteId) return true;
+          if (!a.rotacion) return false;
+          return Number(a.rotacion.docente1_id) === docenteId || Number(a.rotacion.docente2_id) === docenteId;
+        });
+      }
+
+      function deleteCrudWithCascade(key, id) {
+        if (key === "materias") {
+          app.materias = app.materias.filter((x) => Number(x.id) !== id);
+          app.asignaciones = (app.asignaciones || []).filter((a) => {
+            if (Number(a.materia_id) === id) return false;
+            if (!a.rotacion) return true;
+            return Number(a.rotacion.materia1_id) !== id && Number(a.rotacion.materia2_id) !== id;
+          });
+          return;
+        }
+
+        if (key === "cursos") {
+          app.cursos = app.cursos.filter((x) => Number(x.id) !== id);
+          app.grupos = (app.grupos || []).filter((g) => Number(g.curso_id) !== id);
+          app.asignaciones = (app.asignaciones || []).filter((a) => Number(a.curso_id) !== id);
+          if (Number(app.selectedHorarioCursoId) === id) {
+            app.selectedHorarioCursoId = null;
+          }
+          return;
+        }
+
+        app[key] = app[key].filter((x) => Number(x.id) !== id);
+      }
+
       function bindCrud(key) {
         const form = document.getElementById("crudForm");
         if (form) {
@@ -1751,24 +2045,73 @@
         }
 
         document.querySelectorAll(".del-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const id = Number(btn.dataset.id);
-            app[key] = app[key].filter((x) => x.id !== id);
+
+            if (key === "docentes" && hasDocenteAssignments(id)) {
+              await showInfoModal(
+                "No se puede eliminar",
+                "Este docente está asignado en una o más asignaciones. Debes quitar esas asignaciones antes de eliminarlo."
+              );
+              return;
+            }
+
+            let message = "Esta acción no se puede deshacer.";
+            if (key === "materias") {
+              message = "Se eliminará la materia y también todas las asignaciones relacionadas (eliminación en cascada).";
+            } else if (key === "cursos") {
+              message = "Se eliminará el curso y, en cascada, también sus grupos y asignaciones relacionadas.";
+            }
+
+            const ok = await showConfirmModal({
+              title: "Confirmar eliminación",
+              message,
+              confirmText: "Eliminar"
+            });
+            if (!ok) return;
+
+            deleteCrudWithCascade(key, id);
             save();
             render();
           });
         });
 
         document.querySelectorAll(".edit-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const id = Number(btn.dataset.id);
             const item = app[key].find((x) => x.id === id);
             if (!item) return;
             const keys = Object.keys(item).filter((k) => k !== "id");
-            keys.forEach((k) => {
-              const value = prompt(`Editar ${k}`, item[k]);
-              if (value !== null) item[k] = value.trim();
+
+            const fields = keys.map((k) => {
+              const options = getFieldOptions(k);
+              const isNumeric = ["capacidad", "estudiantes"].includes(k);
+              return {
+                name: k,
+                label: humanizeFieldName(k),
+                type: options ? "select" : (isNumeric ? "number" : "text"),
+                value: item[k],
+                required: true,
+                min: isNumeric ? 1 : null,
+                options
+              };
             });
+
+            const values = await showEditModal({
+              title: `Editar ${key.slice(0, -1)}`,
+              fields,
+              submitText: "Guardar"
+            });
+            if (!values) return;
+
+            keys.forEach((k) => {
+              if (["capacidad", "estudiantes"].includes(k)) {
+                item[k] = Number(values[k]) || item[k];
+              } else {
+                item[k] = values[k] || item[k];
+              }
+            });
+
             save();
             render();
           });
@@ -1811,8 +2154,15 @@
         }
 
         document.querySelectorAll(".del-grupo-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const id = Number(btn.dataset.id);
+            const ok = await showConfirmModal({
+              title: "Eliminar grupo",
+              message: "Se eliminará el grupo y las asignaciones vinculadas quedarán sin grupo (eliminación en cascada controlada).",
+              confirmText: "Eliminar"
+            });
+            if (!ok) return;
+
             app.grupos = (app.grupos || []).filter((g) => Number(g.id) !== id);
             app.asignaciones = (app.asignaciones || []).map((a) => (Number(a.grupo_id) === id ? { ...a, grupo_id: null } : a));
             save();
@@ -1821,27 +2171,56 @@
         });
 
         document.querySelectorAll(".edit-grupo-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const id = Number(btn.dataset.id);
             const grupo = (app.grupos || []).find((g) => Number(g.id) === id);
             if (!grupo) return;
 
-            const nuevoNombre = prompt("Editar nombre (Grupo 1 o Grupo 2)", grupo.nombre);
-            if (nuevoNombre === null) return;
-            const nuevoCursoId = prompt("Editar curso_id (solo bachillerato)", String(grupo.curso_id));
-            if (nuevoCursoId === null) return;
-            const nuevoEstudiantes = prompt("Editar estudiantes", String(grupo.estudiantes || 20));
-            if (nuevoEstudiantes === null) return;
+            const cursosTecnicos = getCursosTecnicos();
+            const values = await showEditModal({
+              title: "Editar grupo",
+              fields: [
+                {
+                  name: "nombre",
+                  label: "Grupo",
+                  type: "select",
+                  value: grupo.nombre,
+                  required: true,
+                  options: [
+                    { value: "Grupo 1", label: "Grupo 1" },
+                    { value: "Grupo 2", label: "Grupo 2" }
+                  ]
+                },
+                {
+                  name: "curso_id",
+                  label: "Curso técnico",
+                  type: "select",
+                  value: String(grupo.curso_id),
+                  required: true,
+                  options: cursosTecnicos.map((c) => ({ value: String(c.id), label: c.nombre }))
+                },
+                {
+                  name: "estudiantes",
+                  label: "Estudiantes",
+                  type: "number",
+                  value: String(grupo.estudiantes || 20),
+                  required: true,
+                  min: 1
+                }
+              ]
+            });
 
-            const curso = app.cursos.find((c) => c.id === Number(nuevoCursoId));
+            if (!values) return;
+
+            const curso = app.cursos.find((c) => c.id === Number(values.curso_id));
             if (!curso || curso.nivel !== "Bachillerato") {
-              alert("curso_id invalido para grupos.");
+              showInfoModal("Dato inválido", "El curso seleccionado para un grupo debe ser de Bachillerato.");
               return;
             }
 
-            grupo.nombre = nuevoNombre.trim() || grupo.nombre;
-            grupo.curso_id = Number(nuevoCursoId);
-            grupo.estudiantes = Number(nuevoEstudiantes) || 20;
+            grupo.nombre = values.nombre || grupo.nombre;
+            grupo.curso_id = Number(values.curso_id);
+            grupo.estudiantes = Number(values.estudiantes) || 20;
             save();
             render();
           });
@@ -2048,8 +2427,15 @@
         }
 
         document.querySelectorAll(".del-asig-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const id = Number(btn.dataset.id);
+            const ok = await showConfirmModal({
+              title: "Eliminar asignación",
+              message: "Se eliminará esta asignación. Esta acción no se puede deshacer.",
+              confirmText: "Eliminar"
+            });
+            if (!ok) return;
+
             app.asignaciones = (app.asignaciones || []).filter((a) => Number(a.id) !== id);
             save();
             render();
@@ -2057,32 +2443,80 @@
         });
 
         document.querySelectorAll(".edit-asig-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
+          btn.addEventListener("click", async () => {
             const id = Number(btn.dataset.id);
             const a = (app.asignaciones || []).find((x) => Number(x.id) === id);
             if (!a) return;
 
-            const docente_id = prompt("Editar docente_id", String(a.docente_id));
-            if (docente_id === null) return;
-            const materia_id = prompt("Editar materia_id", String(a.materia_id));
-            if (materia_id === null) return;
-            const curso_id = prompt("Editar curso_id", String(a.curso_id));
-            if (curso_id === null) return;
-            const grupo_id = prompt("Editar grupo_id (vacío para quitar)", a.grupo_id == null ? "" : String(a.grupo_id));
-            if (grupo_id === null) return;
+            const values = await showEditModal({
+              title: "Editar asignación",
+              fields: [
+                {
+                  name: "docente_id",
+                  label: "Docente",
+                  type: "select",
+                  value: String(a.docente_id),
+                  required: true,
+                  options: (app.docentes || []).map((d) => ({ value: String(d.id), label: d.nombre }))
+                },
+                {
+                  name: "materia_id",
+                  label: "Materia",
+                  type: "select",
+                  value: String(a.materia_id),
+                  required: true,
+                  options: (app.materias || []).map((m) => ({ value: String(m.id), label: m.nombre }))
+                },
+                {
+                  name: "curso_id",
+                  label: "Curso",
+                  type: "select",
+                  value: String(a.curso_id),
+                  required: true,
+                  options: (app.cursos || []).map((c) => ({ value: String(c.id), label: c.nombre }))
+                },
+                {
+                  name: "grupo_id",
+                  label: "Grupo",
+                  type: "select",
+                  value: a.grupo_id == null ? "" : String(a.grupo_id),
+                  required: false,
+                  options: [{ value: "", label: "Sin grupo" }].concat(
+                    (app.grupos || []).map((g) => {
+                      const curso = (app.cursos || []).find((c) => Number(c.id) === Number(g.curso_id));
+                      return {
+                        value: String(g.id),
+                        label: `${g.nombre} - ${curso ? curso.nombre : g.curso_id}`
+                      };
+                    })
+                  )
+                }
+              ]
+            });
 
-            const parsedGrupo = grupo_id.trim() === "" ? null : Number(grupo_id);
+            if (!values) return;
+
+            const parsedDocente = Number(values.docente_id);
+            const parsedMateria = Number(values.materia_id);
+            const parsedCurso = Number(values.curso_id);
+            const parsedGrupo = values.grupo_id === "" ? null : Number(values.grupo_id);
+
+            if (!parsedDocente || !parsedMateria || !parsedCurso) {
+              showInfoModal("Datos incompletos", "Debes seleccionar docente, materia y curso válidos.");
+              return;
+            }
+
             if (parsedGrupo) {
               const grupo = (app.grupos || []).find((g) => Number(g.id) === parsedGrupo);
-              if (!grupo || Number(grupo.curso_id) !== Number(curso_id)) {
-                alert("grupo_id no corresponde al curso.");
+              if (!grupo || Number(grupo.curso_id) !== parsedCurso) {
+                showInfoModal("Grupo inválido", "El grupo seleccionado no corresponde al curso elegido.");
                 return;
               }
             }
 
-            a.docente_id = Number(docente_id);
-            a.materia_id = Number(materia_id);
-            a.curso_id = Number(curso_id);
+            a.docente_id = parsedDocente;
+            a.materia_id = parsedMateria;
+            a.curso_id = parsedCurso;
             a.grupo_id = parsedGrupo;
             save();
             render();

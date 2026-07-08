@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" />
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -99,6 +101,35 @@
     .reveal.visible { opacity: 1; transform: translateY(0); }
     /* ───── LOGIN MODAL ───── */
     #loginModal { backdrop-filter: blur(8px); }
+
+    /* Tom Select: un solo borde en el mismo cuadro */
+    .ts-wrapper,
+    .ts-wrapper.form-control,
+    .ts-wrapper.input,
+    .ts-wrapper[class*="border"] {
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+    .ts-wrapper .ts-control {
+      border: 1.5px solid #e2d9c8 !important;
+      border-radius: 10px !important;
+      min-height: 42px;
+      box-shadow: none !important;
+      background: #fff !important;
+      padding: .55rem .8rem !important;
+    }
+    .ts-wrapper.focus .ts-control {
+      border-color: #1247b8 !important;
+      box-shadow: 0 0 0 3px rgba(18,71,184,.18) !important;
+    }
+    .ts-wrapper .ts-control input {
+      border: 0 !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
   </style>
 </head>
 <body>
@@ -392,11 +423,11 @@
           <div class="space-y-4">
             <div>
               <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Nombre completo</label>
-              <input class="contact-input" placeholder="Tu nombre..." />
+              <input class="contact-input" name="nombre" autocomplete="name" placeholder="Tu nombre..." />
             </div>
             <div>
               <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Correo electrónico</label>
-              <input type="email" class="contact-input" placeholder="correo@ejemplo.com" />
+              <input type="email" class="contact-input" name="email" autocomplete="email" placeholder="correo@ejemplo.com" />
             </div>
             <div>
               <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Asunto</label>
@@ -467,11 +498,11 @@
     <form id="loginForm" class="space-y-4">
       <div>
         <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Usuario</label>
-        <input id="loginUser" class="contact-input" placeholder="Usuario administrador" required />
+        <input id="loginUser" class="contact-input" name="username" autocomplete="username" placeholder="Usuario administrador" required />
       </div>
       <div>
         <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Contraseña</label>
-        <input id="loginPass" type="password" class="contact-input" placeholder="••••••••" required />
+        <input id="loginPass" type="password" class="contact-input" name="password" autocomplete="current-password" placeholder="••••••••" required />
       </div>
       <button type="submit" class="btn-blue w-full text-center">Entrar al portal</button>
     </form>
@@ -479,7 +510,6 @@
 </div>
 
 <script>
-  /* ─── Navbar fijo (siempre visible) ─── */
   const navbar = document.getElementById('navbar');
   document.querySelectorAll('#desktopNav .nav-link').forEach(l => l.style.color = 'rgba(255,255,255,.8)');
   window.addEventListener('scroll', () => {
@@ -523,6 +553,34 @@
     m.classList.remove("flex"); 
   }
 
+  function enableInputAutocomplete(root = document) {
+    root.querySelectorAll("input").forEach((input) => {
+      const type = (input.getAttribute("type") || "text").toLowerCase();
+      const blocked = ["hidden", "button", "submit", "reset", "checkbox", "radio", "file"];
+      if (blocked.includes(type) || input.hasAttribute("readonly")) return;
+      if (!input.hasAttribute("autocomplete")) {
+        input.setAttribute("autocomplete", "on");
+      }
+    });
+  }
+
+  function initAutocompleteSelects(root = document) {
+    if (typeof TomSelect === "undefined") return;
+    root.querySelectorAll("select").forEach((select) => {
+      if (select.tomselect) return;
+      const firstOptionLabel = (select.options[0]?.textContent || "opcion")
+        .replace(/^Seleccionar\s+/i, "")
+        .trim()
+        .toLowerCase();
+      new TomSelect(select, {
+        create: false,
+        sortField: null,
+        maxOptions: 300,
+        placeholder: `Buscar ${firstOptionLabel || "opcion"}...`
+      });
+    });
+  }
+
   document.querySelectorAll(".open-login").forEach(btn => btn.addEventListener("click", openLoginModal));
   document.getElementById("closeLogin").addEventListener("click", closeLoginModal);
 
@@ -538,6 +596,9 @@
 
     alert("Credenciales incorrectas. Usa usuario admin y contraseña admin123.");
   });
+
+  enableInputAutocomplete(document);
+  initAutocompleteSelects(document);
 </script>
 </body>
 </html>
